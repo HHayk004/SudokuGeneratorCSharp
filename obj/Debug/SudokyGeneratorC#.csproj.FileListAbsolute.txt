@@ -1,0 +1,7 @@
+C:\Users\user\Desktop\Hayk projects\Programming\SudokyGeneratorC#\SudokyGeneratorC#\obj\Debug\SudokyGeneratorC#.csproj.AssemblyReference.cache
+C:\Users\user\Desktop\Hayk projects\Programming\SudokyGeneratorC#\SudokyGeneratorC#\obj\Debug\SudokyGeneratorC#.csproj.CoreCompileInputs.cache
+C:\Users\user\Desktop\Hayk projects\Programming\SudokyGeneratorC#\SudokyGeneratorC#\bin\Debug\SudokyGeneratorC#.exe.config
+C:\Users\user\Desktop\Hayk projects\Programming\SudokyGeneratorC#\SudokyGeneratorC#\bin\Debug\SudokyGeneratorC#.exe
+C:\Users\user\Desktop\Hayk projects\Programming\SudokyGeneratorC#\SudokyGeneratorC#\bin\Debug\SudokyGeneratorC#.pdb
+C:\Users\user\Desktop\Hayk projects\Programming\SudokyGeneratorC#\SudokyGeneratorC#\obj\Debug\SudokyGeneratorC#.exe
+C:\Users\user\Desktop\Hayk projects\Programming\SudokyGeneratorC#\SudokyGeneratorC#\obj\Debug\SudokyGeneratorC#.pdb
