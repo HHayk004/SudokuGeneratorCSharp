@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -10,22 +9,26 @@ namespace Sudoku
         private const int GridSize = 9;
         private const int MaxMistakes = 3;
 
-        private TextBox[,] textBoxes = new TextBox[GridSize, GridSize];
+        private Button[,] buttons = new Button[GridSize, GridSize];
         private int[,] solution;
+        private int[,] puzzle;
         private int EmptyCellsCount;
         private int ElapsedSeconds = 0;
         private int Mistakes = 0;
         private Timer gameTimer;
         private bool isPaused = false;
+        private int selectedDigit = 1;
+        private Button selectedButton = null;
 
         private Label statusLabel;
         private TableLayoutPanel mainLayout;
         private TableLayoutPanel boardLayout;
         private TableLayoutPanel buttonLayout;
+        private TableLayoutPanel digitSelectorLayout;
 
         private Panel gamePanel;
         private Panel menuPanel;
-        private int missingPercentage = 20; // default (easy)
+        private int missingPercentage = 20;
 
         public Form1()
         {
@@ -33,19 +36,13 @@ namespace Sudoku
             InitializeMenu();
         }
 
-        // ============================
-        //         MENU SETUP
-        // ============================
         private void InitializeMenu()
         {
             this.Text = "Sudoku";
-            this.ClientSize = new Size(500, 600);
+            this.ClientSize = new Size(600, 850);
             this.StartPosition = FormStartPosition.CenterScreen;
 
-            menuPanel = new Panel
-            {
-                Dock = DockStyle.Fill
-            };
+            menuPanel = new Panel { Dock = DockStyle.Fill };
 
             TableLayoutPanel layout = new TableLayoutPanel
             {
@@ -53,10 +50,9 @@ namespace Sudoku
                 RowCount = 3,
                 ColumnCount = 1
             };
-
-            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 30)); // Spacer
-            layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));    // Title
-            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 70)); // Buttons
+            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 30));
+            layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 70));
 
             Label title = new Label
             {
@@ -92,7 +88,6 @@ namespace Sudoku
             this.Controls.Add(menuPanel);
         }
 
-
         private void StartGameWithDifficulty(int percentMissing)
         {
             missingPercentage = percentMissing;
@@ -106,9 +101,6 @@ namespace Sudoku
             StartTimer();
         }
 
-        // ============================
-        //         GAME SETUP
-        // ============================
         private void InitializeGameLayout()
         {
             gamePanel = new Panel { Dock = DockStyle.Fill };
@@ -117,16 +109,16 @@ namespace Sudoku
             mainLayout = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
-                RowCount = 3,
+                RowCount = 4,
                 ColumnCount = 1
             };
-            mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 30)); // status label
-            mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 90));  // board
-            mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // buttons
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50));
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 600));
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50));
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 100));
 
             gamePanel.Controls.Add(mainLayout);
 
-            // Status label
             statusLabel = new Label
             {
                 Dock = DockStyle.Fill,
@@ -136,23 +128,19 @@ namespace Sudoku
             };
             mainLayout.Controls.Add(statusLabel, 0, 0);
 
-            // Board layout
             boardLayout = new TableLayoutPanel
             {
                 RowCount = GridSize,
                 ColumnCount = GridSize,
                 Dock = DockStyle.Fill
             };
-
-            for (int i = 0; i < GridSize; i++)
+            for (int i = 0; i < GridSize; ++i)
             {
                 boardLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100f / GridSize));
                 boardLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f / GridSize));
             }
-
             mainLayout.Controls.Add(boardLayout, 0, 1);
 
-            // Button layout
             buttonLayout = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
@@ -172,6 +160,60 @@ namespace Sudoku
             buttonLayout.Controls.Add(pauseButton, 1, 0);
 
             mainLayout.Controls.Add(buttonLayout, 0, 2);
+
+            // Create digit selector layout (3x3 grid for digits 1-9)
+            digitSelectorLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 3,  // 3 columns for digits 1-9
+                RowCount = 3,     // 3 rows for the buttons to fit nicely
+            };
+
+            // Ensure equal size distribution
+            for (int i = 0; i < 3; i++)
+            {
+                digitSelectorLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33f)); // Even distribution across columns
+                digitSelectorLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33f)); // Even distribution across rows
+            }
+
+            // Create digit buttons (1 to 9)
+            for (int i = 1; i <= 9; i++)
+            {
+                Button digitBtn = new Button
+                {
+                    Text = i.ToString(),
+                    Dock = DockStyle.Fill,
+                    Tag = i,
+                    BackColor = Color.White,
+                    Font = new Font("Arial", 16, FontStyle.Bold) // Adjust font size for better fit
+                };
+
+                // Attach click event handler to set selected digit
+                digitBtn.Click += (s, e) =>
+                {
+                    selectedDigit = (int)((Button)s).Tag;
+                    HighlightSelectedDigit();
+                    TryPlaceDigit();
+                };
+
+                // Place buttons in 3x3 grid (row-major order)
+                digitSelectorLayout.Controls.Add(digitBtn, (i - 1) % 3, (i - 1) / 3); // Add buttons to grid
+            }
+
+            // Add the digit selector layout to the main layout
+            mainLayout.Controls.Add(digitSelectorLayout, 0, 3);  // Position this in the fourth row of mainLayout
+        }
+
+        private void HighlightSelectedDigit()
+        {
+            foreach (Control ctrl in digitSelectorLayout.Controls)
+            {
+                if (ctrl is Button btn)
+                {
+                    int val = (int)btn.Tag;
+                    btn.BackColor = (val == selectedDigit) ? Color.LightBlue : Color.White;
+                }
+            }
         }
 
         private void StartGame()
@@ -183,92 +225,85 @@ namespace Sudoku
 
             BoardGenerator generator = new BoardGenerator();
             solution = generator.GetBoard(GridSize);
-
             int totalCells = GridSize * GridSize;
             EmptyCellsCount = (missingPercentage * totalCells) / 100;
 
-            int[,] puzzle = generator.CreatePuzzle(solution, EmptyCellsCount);
+            puzzle = generator.CreatePuzzle(solution, EmptyCellsCount);
 
             for (int row = 0; row < GridSize; row++)
             {
                 for (int col = 0; col < GridSize; col++)
                 {
-                    TextBox textBox = new TextBox
+                    Button btn = new Button
                     {
                         Dock = DockStyle.Fill,
-                        TextAlign = HorizontalAlignment.Center,
                         Font = new Font("Consolas", 16),
-                        MaxLength = 1,
-                        Tag = new Point(row, col)
+                        Tag = new Point(row, col),
+                        BackColor = Color.White
                     };
 
                     int value = puzzle[row, col];
                     if (value != 0)
                     {
-                        textBox.Text = value.ToString();
-                        textBox.Enabled = false;
-                        textBox.BackColor = Color.LightGray;
+                        btn.Text = value.ToString();
+                        btn.Enabled = false;
+                        btn.BackColor = Color.LightGray;
                     }
                     else
                     {
-                        textBox.KeyPress += OnKeyPressDigitOnly;
-                        textBox.TextChanged += OnUserInputChanged;
+                        btn.Click += OnGridButtonClick;
+                        btn.Text = "";
                     }
 
-                    textBoxes[row, col] = textBox;
-                    boardLayout.Controls.Add(textBox, col, row);
+                    buttons[row, col] = btn;
+                    boardLayout.Controls.Add(btn, col, row);
                 }
             }
         }
 
-        private void OnKeyPressDigitOnly(object sender, KeyPressEventArgs e)
-        {
-            if (!char.IsControl(e.KeyChar) && (e.KeyChar < '1' || e.KeyChar > '9'))
-            {
-                e.Handled = true;
-            }
-        }
-
-        private void OnUserInputChanged(object sender, EventArgs e)
+        private void OnGridButtonClick(object sender, EventArgs e)
         {
             if (isPaused) return;
 
-            TextBox textBox = sender as TextBox;
-            if (textBox == null || string.IsNullOrEmpty(textBox.Text))
-            {
-                textBox.BackColor = Color.White;
-                return;
-            }
+            Button btn = sender as Button;
+            selectedButton = btn;
 
-            Point point = (Point)textBox.Tag;
+            // Highlight selected cell
+            foreach (Button b in buttons)
+                if (b.Enabled) b.BackColor = Color.White;
+
+            btn.BackColor = Color.LightBlue;
+        }
+
+        private void TryPlaceDigit()
+        {
+            if (selectedButton == null) return;
+
+            Point point = (Point)selectedButton.Tag;
             int row = point.X;
             int col = point.Y;
-            int expected = solution[row, col];
 
-            if (int.TryParse(textBox.Text, out int userValue))
+            if (selectedButton.Text == selectedDigit.ToString()) return;
+
+            if (solution[row, col] == selectedDigit)
             {
-                if (userValue != expected)
-                {
-                    Mistakes++;
-                    textBox.BackColor = Color.LightPink;
-                }
-                else
-                {
-                    textBox.BackColor = Color.White;
-                    textBox.Enabled = false;
-                    --EmptyCellsCount;
-                }
+                selectedButton.Text = selectedDigit.ToString();
+                selectedButton.Enabled = false;
+                selectedButton.BackColor = Color.White;
+                selectedButton = null;
+                EmptyCellsCount--;
+
+                if (EmptyCellsCount == 0)
+                    WinGame();
             }
-
-            UpdateStatus();
-
-            if (Mistakes >= MaxMistakes)
+            else
             {
-                LoseGame();
-            }
-            else if (EmptyCellsCount == 0)
-            {
-                WinGame();
+                Mistakes++;
+                selectedButton.BackColor = Color.LightPink;
+                UpdateStatus();
+
+                if (Mistakes >= MaxMistakes)
+                    LoseGame();
             }
         }
 
@@ -303,17 +338,6 @@ namespace Sudoku
             isPaused = !isPaused;
             Button pauseBtn = sender as Button;
             pauseBtn.Text = isPaused ? "Resume" : "Pause";
-
-            for (int i = 0; i < GridSize; i++)
-            {
-                for (int j = 0; j < GridSize; j++)
-                {
-                    if (!textBoxes[i, j].Enabled)
-                    {
-                        textBoxes[i, j].Text = isPaused ? null : solution[i, j].ToString();
-                    }
-                }
-            }
         }
 
         private void LoseGame()
@@ -335,6 +359,19 @@ namespace Sudoku
             gameTimer?.Stop();
             this.Controls.Remove(gamePanel);
             menuPanel.Visible = true;
+        }
+
+        // Allow keyboard input for digits
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData >= Keys.D1 && keyData <= Keys.D9)
+            {
+                selectedDigit = keyData - Keys.D0;
+                HighlightSelectedDigit();
+                TryPlaceDigit();
+                return true;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
         }
     }
 }
