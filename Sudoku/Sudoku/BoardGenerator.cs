@@ -245,17 +245,54 @@ namespace Sudoku
             }
         }
 
-        public int[,] CreatePuzzle(int[,] board, int removeCellsCount)
+        private static bool[] IsValid(int[,] puzzle, int row, int col)
         {
-            int[,] puzzle = new int[Size, Size];
-            Array.Copy(board, puzzle, board.Length);
-            int[,] coordinates = GenerateRandomCoordinates(removeCellsCount);
-            for (int i = 0; i < removeCellsCount; ++i)
-            {
-                puzzle[coordinates[i, 0], coordinates[i, 1]] = 0;
-            }
-            return puzzle;
+            bool[] result = new bool[9];
+            for (int d = 0; d < 9; d++)
+                result[d] = true;
+
+            for (int c = 0; c < 9; c++)
+                if (puzzle[row, c] != 0)
+                    result[puzzle[row, c] - 1] = false;
+
+            for (int r = 0; r < 9; r++)
+                if (puzzle[r, col] != 0)
+                    result[puzzle[r, col] - 1] = false;
+
+            int boxRow = (row / 3) * 3;
+            int boxCol = (col / 3) * 3;
+            for (int r = 0; r < 3; r++)
+                for (int c = 0; c < 3; c++)
+                    if (puzzle[boxRow + r, boxCol + c] != 0)
+                        result[puzzle[boxRow + r, boxCol + c] - 1] = false;
+
+            return result;
         }
+
+        public static bool[,,] GetPossibleValues(int[,] puzzle)
+        {
+            bool[,,] possible = new bool[9, 9, 9];
+
+            for (int row = 0; row < 9; row++)
+            {
+                for (int col = 0; col < 9; col++)
+                {
+                    if (puzzle[row, col] == 0)
+                    {
+                        bool[] valid = IsValid(puzzle, row, col);
+                        for (int d = 0; d < 9; d++)
+                            possible[row, col, d] = valid[d];
+                    }
+                    else
+                    {
+                        possible[row, col, puzzle[row, col] - 1] = true;
+                    }
+                }
+            }
+
+            return possible;
+        }
+
 
         public int[,] GenerateRandomCoordinates(int n)
         {
@@ -287,6 +324,86 @@ namespace Sudoku
             }
 
             return coordinatesList;
+        }
+
+        private void SolutionCount(int[,] puzzle, bool[,,] possible, ref int row, ref int col, ref int count, int limit = 2)
+        {
+            if (row == Size)
+            {
+                ++count;
+                return;
+            }
+
+            if (puzzle[row, col] == 0)
+            {
+                for (int i = 0; i < Size; ++i)
+                {
+                    if (possible[row, col, i])
+                    {
+                        puzzle[row, col] = i + 1;
+                        bool[,,] newPossible = GetPossibleValues(puzzle);
+                        ++col;
+                        if (col == Size)
+                        {
+                            col = 0;
+                            ++row;
+                            SolutionCount(puzzle, newPossible, ref row, ref col, ref count, limit);
+                            --row;
+                            col = Size - 1;
+                        }
+
+                        else
+                        {
+                            SolutionCount(puzzle, newPossible, ref row, ref col, ref count, limit);
+                            --col;
+                        }
+                        puzzle[row, col] = 0;
+                    }
+                }
+            }
+
+            else
+            {
+                ++col;
+                if (col == Size)
+                {
+                    col = 0;
+                    ++row;
+                    SolutionCount(puzzle, possible, ref row, ref col, ref count, limit);
+                    --row;
+                    col = Size - 1;
+                }
+
+                else
+                {
+                    SolutionCount(puzzle, possible, ref row, ref col, ref count, limit);
+                    --col;
+                }
+            }
+
+            if (count >= limit) return;
+        }
+
+        public int[,] CreatePuzzle(int[,] board, int removeCellsCount)
+        {
+            int[,] puzzle = new int[Size, Size];
+            Array.Copy(board, puzzle, board.Length);
+            int count = 0;
+            int row = 0;
+            int col = 0;
+
+            do
+            {
+                int[,] coordinates = GenerateRandomCoordinates(removeCellsCount);
+                for (int i = 0; i < removeCellsCount; ++i)
+                {
+                    puzzle[coordinates[i, 0], coordinates[i, 1]] = 0;
+                }
+                count = 0;
+                SolutionCount(puzzle, GetPossibleValues(puzzle), ref row, ref col, ref count);
+                Console.WriteLine("{0} \n", count);
+            } while (count != 1);
+            return puzzle;
         }
     }
 }
