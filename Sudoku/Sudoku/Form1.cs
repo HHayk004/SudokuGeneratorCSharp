@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -9,15 +10,15 @@ namespace Sudoku
         private const int GridSize = 9;
         private const int MaxMistakes = 3;
 
-        private Button[,] buttons = new Button[GridSize, GridSize];
-        private int[,] solution;
-        private int[,] puzzle;
+        private List<List<Button>> buttons = new List<List<Button>>(GridSize);
+        private List<List<int>> solution;
+        private List<List<int>> puzzle;
         private int EmptyCellsCount;
         private int ElapsedSeconds = 0;
         private int Mistakes = 0;
         private Timer gameTimer;
         private bool isPaused = false;
-        private int selectedDigit = 1;
+        private int selectedDigit = 0;
         private Button selectedButton = null;
 
         private Label statusLabel;
@@ -230,8 +231,10 @@ namespace Sudoku
 
             puzzle = generator.CreatePuzzle(solution, EmptyCellsCount);
 
+            buttons.Clear();
             for (int row = 0; row < GridSize; row++)
             {
+                List<Button> buttonRow = new List<Button>(GridSize);
                 for (int col = 0; col < GridSize; col++)
                 {
                     Button btn = new Button
@@ -242,7 +245,7 @@ namespace Sudoku
                         BackColor = Color.White
                     };
 
-                    int value = puzzle[row, col];
+                    int value = puzzle[row][col];
                     if (value != 0)
                     {
                         btn.Text = value.ToString();
@@ -255,55 +258,72 @@ namespace Sudoku
                         btn.Text = "";
                     }
 
-                    buttons[row, col] = btn;
+                    buttonRow.Add(btn);
                     boardLayout.Controls.Add(btn, col, row);
                 }
+                buttons.Add(buttonRow);
             }
         }
 
         private void OnGridButtonClick(object sender, EventArgs e)
         {
-            if (isPaused) return;
+            if (isPaused || selectedDigit == 0) return;
 
             Button btn = sender as Button;
             selectedButton = btn;
 
             // Highlight selected cell
-            foreach (Button b in buttons)
-                if (b.Enabled) b.BackColor = Color.White;
+            foreach (var row in buttons)
+                foreach (var b in row)
+                    b.FlatAppearance.BorderSize = 1;
 
-            btn.BackColor = Color.LightBlue;
+            btn.FlatAppearance.BorderSize = 3;
+            btn.FlatAppearance.BorderColor = Color.Red;
+
+            TryPlaceDigit();
         }
 
         private void TryPlaceDigit()
         {
-            if (selectedButton == null) return;
+            if (selectedButton == null || isPaused) return;
+            Point pos = (Point)selectedButton.Tag;
+            int row = pos.X;
+            int col = pos.Y;
 
-            Point point = (Point)selectedButton.Tag;
-            int row = point.X;
-            int col = point.Y;
+            if (puzzle[row][col] != 0) return; // already filled
 
-            if (selectedButton.Text == selectedDigit.ToString()) return;
-
-            if (solution[row, col] == selectedDigit)
+            Console.WriteLine("{0}, {1}", solution[row][col], selectedDigit);
+            if (solution[row][col] == selectedDigit)
             {
                 selectedButton.Text = selectedDigit.ToString();
                 selectedButton.Enabled = false;
-                selectedButton.BackColor = Color.White;
-                selectedButton = null;
+                selectedButton.BackColor = Color.LightGreen;
+                puzzle[row][col] = selectedDigit;
                 EmptyCellsCount--;
+                selectedButton.FlatAppearance.BorderSize = 1;
+                selectedButton = null;
 
                 if (EmptyCellsCount == 0)
-                    WinGame();
+                {
+                    gameTimer.Stop();
+                    MessageBox.Show("You win! Time: " + ElapsedSeconds + " seconds", "Sudoku");
+                    ReturnToMenu();
+                }
             }
             else
             {
                 Mistakes++;
-                selectedButton.BackColor = Color.LightPink;
                 UpdateStatus();
-
                 if (Mistakes >= MaxMistakes)
-                    LoseGame();
+                {
+                    gameTimer.Stop();
+                    MessageBox.Show("Game over! Too many mistakes.", "Sudoku");
+                    ReturnToMenu();
+                }
+                else
+                {
+                    MessageBox.Show("Incorrect!", "Sudoku");
+                }
             }
         }
 
@@ -314,12 +334,6 @@ namespace Sudoku
 
         private void StartTimer()
         {
-            if (gameTimer != null)
-            {
-                gameTimer.Stop();
-                gameTimer.Dispose();
-            }
-
             gameTimer = new Timer();
             gameTimer.Interval = 1000;
             gameTimer.Tick += (s, e) =>
@@ -336,22 +350,37 @@ namespace Sudoku
         private void TogglePause(object sender, EventArgs e)
         {
             isPaused = !isPaused;
-            Button pauseBtn = sender as Button;
-            pauseBtn.Text = isPaused ? "Resume" : "Pause";
-        }
+            Button btn = sender as Button;
 
-        private void LoseGame()
-        {
-            gameTimer.Stop();
-            MessageBox.Show("Game Over! You've made 3 Mistakes.", "Sudoku", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            ReturnToMenu();
-        }
+            if (isPaused)
+            {
+                for (int i = 0; i < GridSize; ++i)
+                {
+                    for (int j = 0; j < GridSize; ++j)
+                    {
+                        if (buttons[i][j].Enabled == false)
+                        {
+                            buttons[i][j].Text = "";
+                        }
+                    }
+                }
+            }
 
-        private void WinGame()
-        {
-            gameTimer.Stop();
-            MessageBox.Show("Congratulations! You Win.", "Sudoku", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            ReturnToMenu();
+            else
+            {
+                for (int i = 0; i < GridSize; ++i)
+                {
+                    for (int j = 0; j < GridSize; ++j)
+                    {
+                        if (buttons[i][j].Enabled == false)
+                        {
+                            buttons[i][j].Text = solution[i][j].ToString();
+                        }
+                    }
+                }
+            }
+
+            btn.Text = isPaused ? "Resume" : "Pause";
         }
 
         private void ReturnToMenu()
@@ -359,19 +388,8 @@ namespace Sudoku
             gameTimer?.Stop();
             this.Controls.Remove(gamePanel);
             menuPanel.Visible = true;
-        }
-
-        // Allow keyboard input for digits
-        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-        {
-            if (keyData >= Keys.D1 && keyData <= Keys.D9)
-            {
-                selectedDigit = keyData - Keys.D0;
-                HighlightSelectedDigit();
-                TryPlaceDigit();
-                return true;
-            }
-            return base.ProcessCmdKey(ref msg, keyData);
+            selectedButton = null;
+            buttons.Clear();
         }
     }
 }

@@ -1,28 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Sudoku
 {
     internal class BoardGenerator
     {
         private Random rand;
-
         private int Size;
 
         public BoardGenerator()
         {
-            rand = new Random(); // Initialize Random in the constructor
+            rand = new Random();
         }
 
-        public int[,] GetBoard(int n)
+        public List<List<int>> GetBoard(int n)
         {
-            int[,] board = InitialBoard(n);
             Size = n;
+            var board = InitialBoard(n);
 
-            List<Action<int[,]>> shuffleFunctions = new List<Action<int[,]>>()
+            List<Action<List<List<int>>>> shuffleFunctions = new List<Action<List<List<int>>>>()
             {
                 MirrorX, MirrorY, Clockwise, CounterClockwise, Transpose, CounterTranspose
             };
@@ -33,7 +29,7 @@ namespace Sudoku
                 shuffleFunctions[index](board);
             }
 
-            List<Action<int[,]>> shuffleRowColFunctions = new List<Action<int[,]>>()
+            List<Action<List<List<int>>>> shuffleRowColFunctions = new List<Action<List<List<int>>>>()
             {
                 ShuffleRows, ShuffleCols, ShuffleRowBlocks, ShuffleColBlocks
             };
@@ -48,31 +44,40 @@ namespace Sudoku
 
             return board;
         }
-        private int[,] InitialBoard(int n)
-        {
-            int[,] board = new int[n, n];
-            int blockSize = Convert.ToInt32(Math.Sqrt(n));
 
-            for (int i = 0; i < n; ++i)
+        private List<List<int>> InitialBoard(int n)
+        {
+            var board = new List<List<int>>(n);
+            int blockSize = (int)Math.Sqrt(n);
+
+            for (int i = 0; i < n; i++)
             {
-                board[0, i] = i + 1;
+                board.Add(new List<int>(new int[n]));
             }
 
+            // Initialize first row
+            for (int i = 0; i < n; ++i)
+            {
+                board[0][i] = i + 1;
+            }
+
+            // Initialize other rows in first blockSize rows
             for (int i = 1; i < blockSize; ++i)
             {
                 for (int j = 0; j < n; ++j)
                 {
-                    board[i, j] = board[i - 1, (j + blockSize) % n];
+                    board[i][j] = board[i - 1][(j + blockSize) % n];
                 }
             }
 
+            // Initialize the rest of the board
             for (int i = 1; i < blockSize; ++i)
             {
                 for (int j = 0; j < blockSize; ++j)
                 {
                     for (int k = 0; k < n; ++k)
                     {
-                        board[i * blockSize + j, k] = board[(i - 1) * blockSize + j, (k + 1) % n];
+                        board[i * blockSize + j][k] = board[(i - 1) * blockSize + j][(k + 1) % n];
                     }
                 }
             }
@@ -80,90 +85,84 @@ namespace Sudoku
             return board;
         }
 
-        private void MirrorX(int[,] board)
+        private void MirrorX(List<List<int>> board)
         {
             for (int i = 0; i < Size / 2; i++)
             {
-                for (int j = 0; j < Size; j++)
-                {
-                    int temp = board[i, j];
-                    board[i, j] = board[Size - 1 - i, j];
-                    board[Size - 1 - i, j] = temp;
-                }
+                var tempRow = board[i];
+                board[i] = board[Size - 1 - i];
+                board[Size - 1 - i] = tempRow;
             }
         }
 
-        private void MirrorY(int[,] board)
+        private void MirrorY(List<List<int>> board)
         {
             for (int i = 0; i < Size; i++)
             {
                 for (int j = 0; j < Size / 2; j++)
                 {
-                    int temp = board[i, j];
-                    board[i, j] = board[i, Size - 1 - j];
-                    board[i, Size - 1 - j] = temp;
+                    int temp = board[i][j];
+                    board[i][j] = board[i][Size - 1 - j];
+                    board[i][Size - 1 - j] = temp;
                 }
             }
         }
 
-        private void Clockwise(int[,] board)
+        private void Clockwise(List<List<int>> board)
         {
             Transpose(board);
             MirrorY(board);
         }
 
-        private void CounterClockwise(int[,] board)
+        private void CounterClockwise(List<List<int>> board)
         {
             MirrorY(board);
             Transpose(board);
         }
 
-        private void Transpose(int[,] board)
+        private void Transpose(List<List<int>> board)
         {
             for (int i = 0; i < Size; i++)
             {
                 for (int j = i + 1; j < Size; j++)
                 {
-                    int temp = board[i, j];
-                    board[i, j] = board[j, i];
-                    board[j, i] = temp;
+                    int temp = board[i][j];
+                    board[i][j] = board[j][i];
+                    board[j][i] = temp;
                 }
             }
         }
 
-        private void CounterTranspose(int[,] board)
+        private void CounterTranspose(List<List<int>> board)
         {
             for (int i = 0; i < Size; i++)
             {
                 for (int j = 0; j < Size - i - 1; j++)
                 {
-                    int temp = board[i, j];
-                    board[i, j] = board[Size - 1 - j, Size - 1 - i];
-                    board[Size - 1 - j, Size - 1 - i] = temp;
+                    int temp = board[i][j];
+                    board[i][j] = board[Size - 1 - j][Size - 1 - i];
+                    board[Size - 1 - j][Size - 1 - i] = temp;
                 }
             }
         }
 
-        private void ShuffleRows(int[,] board)
+        private void ShuffleRows(List<List<int>> board)
         {
-            int blockSize = Convert.ToInt32(Math.Sqrt(Size));
+            int blockSize = (int)Math.Sqrt(Size);
             for (int i = 0; i < blockSize; i++)
             {
                 int row1 = rand.Next(blockSize) + i * blockSize;
                 int row2 = rand.Next(blockSize) + i * blockSize;
 
-                for (int j = 0; j < Size; j++)
-                {
-                    int temp = board[row1, j];
-                    board[row1, j] = board[row2, j];
-                    board[row2, j] = temp;
-                }
+                var tempRow = board[row1];
+                board[row1] = board[row2];
+                board[row2] = tempRow;
             }
         }
 
-        private void ShuffleCols(int[,] board)
+        private void ShuffleCols(List<List<int>> board)
         {
-            int blockSize = Convert.ToInt32(Math.Sqrt(Size));
+            int blockSize = (int)Math.Sqrt(Size);
             for (int i = 0; i < blockSize; i++)
             {
                 int col1 = rand.Next(blockSize) + i * blockSize;
@@ -171,33 +170,30 @@ namespace Sudoku
 
                 for (int j = 0; j < Size; j++)
                 {
-                    int temp = board[j, col1];
-                    board[j, col1] = board[j, col2];
-                    board[j, col2] = temp;
+                    int temp = board[j][col1];
+                    board[j][col1] = board[j][col2];
+                    board[j][col2] = temp;
                 }
             }
         }
 
-        private void ShuffleRowBlocks(int[,] board)
+        private void ShuffleRowBlocks(List<List<int>> board)
         {
-            int blockSize = Convert.ToInt32(Math.Sqrt(Size));
+            int blockSize = (int)Math.Sqrt(Size);
             int rowBlock1 = rand.Next(blockSize) * blockSize;
             int rowBlock2 = rand.Next(blockSize) * blockSize;
 
             for (int i = 0; i < blockSize; i++)
             {
-                for (int j = 0; j < Size; j++)
-                {
-                    int temp = board[rowBlock1 + i, j];
-                    board[rowBlock1 + i, j] = board[rowBlock2 + i, j];
-                    board[rowBlock2 + i, j] = temp;
-                }
+                var tempRow = board[rowBlock1 + i];
+                board[rowBlock1 + i] = board[rowBlock2 + i];
+                board[rowBlock2 + i] = tempRow;
             }
         }
 
-        private void ShuffleColBlocks(int[,] board)
+        private void ShuffleColBlocks(List<List<int>> board)
         {
-            int blockSize = Convert.ToInt32(Math.Sqrt(Size));
+            int blockSize = (int)Math.Sqrt(Size);
             int colBlock1 = rand.Next(blockSize) * blockSize;
             int colBlock2 = rand.Next(blockSize) * blockSize;
 
@@ -205,26 +201,24 @@ namespace Sudoku
             {
                 for (int j = 0; j < blockSize; j++)
                 {
-                    int temp = board[i, colBlock1 + j];
-                    board[i, colBlock1 + j] = board[i, colBlock2 + j];
-                    board[i, colBlock2 + j] = temp;
+                    int temp = board[i][colBlock1 + j];
+                    board[i][colBlock1 + j] = board[i][colBlock2 + j];
+                    board[i][colBlock2 + j] = temp;
                 }
             }
         }
 
-        private int[] GenerateShuffle()
+        private List<int> GenerateShuffle()
         {
-            int[] numbers = new int[Size];
+            List<int> numbers = new List<int>(Size);
             for (int i = 0; i < Size; ++i)
             {
-                numbers[i] = i + 1;
+                numbers.Add(i + 1);
             }
 
-            // Shuffle using manual range control
             for (int i = Size - 1; i > 0; --i)
             {
-                int j = rand.Next(0, i + 1); // Choose index from 0 to i
-                                             // Swap numbers[j] and numbers[i]
+                int j = rand.Next(0, i + 1);
                 int temp = numbers[j];
                 numbers[j] = numbers[i];
                 numbers[i] = temp;
@@ -233,176 +227,127 @@ namespace Sudoku
             return numbers;
         }
 
-        private void NumSwapping(int[,] board)
+        private void NumSwapping(List<List<int>> board)
         {
-            int[] shuffled = GenerateShuffle();
+            List<int> shuffled = GenerateShuffle();
             for (int i = 0; i < Size; ++i)
             {
                 for (int j = 0; j < Size; ++j)
                 {
-                    board[i, j] = shuffled[board[i, j] - 1];
+                    board[i][j] = shuffled[board[i][j] - 1];
                 }
             }
         }
 
-        private static bool[] IsValid(int[,] puzzle, int row, int col)
+        private static bool[] IsValid(List<List<int>> puzzle, int row, int col)
         {
             bool[] result = new bool[9];
             for (int d = 0; d < 9; d++)
                 result[d] = true;
 
             for (int c = 0; c < 9; c++)
-                if (puzzle[row, c] != 0)
-                    result[puzzle[row, c] - 1] = false;
+                if (puzzle[row][c] != 0)
+                    result[puzzle[row][c] - 1] = false;
 
             for (int r = 0; r < 9; r++)
-                if (puzzle[r, col] != 0)
-                    result[puzzle[r, col] - 1] = false;
+                if (puzzle[r][col] != 0)
+                    result[puzzle[r][col] - 1] = false;
 
             int boxRow = (row / 3) * 3;
             int boxCol = (col / 3) * 3;
-            for (int r = 0; r < 3; r++)
-                for (int c = 0; c < 3; c++)
-                    if (puzzle[boxRow + r, boxCol + c] != 0)
-                        result[puzzle[boxRow + r, boxCol + c] - 1] = false;
+            for (int r = 0; r < 3; ++r)
+                for (int c = 0; c < 3; ++c)
+                    if (puzzle[boxRow + r][boxCol + c] != 0)
+                        result[puzzle[boxRow + r][boxCol + c] - 1] = false;
 
             return result;
         }
 
-        public static bool[,,] GetPossibleValues(int[,] puzzle)
+        public static bool[,] GetPossibleValues(List<List<int>> puzzle, List<(int row, int col)> coordinates, int index = 0)
         {
-            bool[,,] possible = new bool[9, 9, 9];
+            int n = coordinates.Count;
+            bool[,] possible = new bool[n, 9];
 
-            for (int row = 0; row < 9; row++)
+            for (int i = index; i < n; ++i)
             {
-                for (int col = 0; col < 9; col++)
+                bool[] valid = IsValid(puzzle, coordinates[i].row, coordinates[i].col);
+                for (int d = 0; d < 9; ++d)
                 {
-                    if (puzzle[row, col] == 0)
-                    {
-                        bool[] valid = IsValid(puzzle, row, col);
-                        for (int d = 0; d < 9; d++)
-                            possible[row, col, d] = valid[d];
-                    }
-                    else
-                    {
-                        possible[row, col, puzzle[row, col] - 1] = true;
-                    }
+                    possible[i, d] = valid[d];
                 }
             }
 
             return possible;
         }
 
-
-        public int[,] GenerateRandomCoordinates(int n)
+        public List<(int row, int col)> GenerateRandomCoordinates(int n)
         {
             if (n > Size * Size)
             {
                 throw new ArgumentException("n cannot be greater than the total number of positions in the grid.");
             }
 
-            HashSet<string> coordinatesSet = new HashSet<string>();
-            int[,] coordinatesList = new int[n, 2];
+            HashSet<(int, int)> coordinatesSet = new HashSet<(int, int)>();
+            List<(int row, int col)> coordinatesList = new List<(int row, int col)>();
 
-            // Keep generating random coordinates until we have n unique ones
-            for (int i = 0; i < n; ++i)
+            while (coordinatesList.Count < n)
             {
-                int row = rand.Next(0, Size); // Random row
-                int col = rand.Next(0, Size); // Random column
+                int row = rand.Next(0, Size);
+                int col = rand.Next(0, Size);
 
-                if (!coordinatesSet.Contains($"{row},{col}"))
+                if (!coordinatesSet.Contains((row, col)))
                 {
-                    coordinatesSet.Add($"{row},{col}");
-                    coordinatesList[i, 0] = row;  // Assign row
-                    coordinatesList[i, 1] = col;
-                }
-
-                else
-                {
-                    --i;
+                    coordinatesSet.Add((row, col));
+                    coordinatesList.Add((row, col));
                 }
             }
 
             return coordinatesList;
         }
 
-        private void SolutionCount(int[,] puzzle, bool[,,] possible, ref int row, ref int col, ref int count, int limit = 2)
+        private void SolutionCount(List<List<int>> puzzle, bool[,] possible, List<(int row, int col)> emptyCoordinates, int index, ref int count, int limit = 2)
         {
-            if (row == Size)
+            if (index == emptyCoordinates.Count)
             {
-                ++count;
+                count++;
                 return;
             }
 
-            if (puzzle[row, col] == 0)
+            for (int d = 0; d < 9; ++d)
             {
-                for (int i = 0; i < Size; ++i)
-                {
-                    if (possible[row, col, i])
-                    {
-                        puzzle[row, col] = i + 1;
-                        bool[,,] newPossible = GetPossibleValues(puzzle);
-                        ++col;
-                        if (col == Size)
-                        {
-                            col = 0;
-                            ++row;
-                            SolutionCount(puzzle, newPossible, ref row, ref col, ref count, limit);
-                            --row;
-                            col = Size - 1;
-                        }
+                if (!possible[index, d])
+                    continue;
 
-                        else
-                        {
-                            SolutionCount(puzzle, newPossible, ref row, ref col, ref count, limit);
-                            --col;
-                        }
-                        puzzle[row, col] = 0;
-                    }
-                }
+                var (row, col) = emptyCoordinates[index];
+                puzzle[row][col] = d + 1;
+
+                bool[,] newPossible = GetPossibleValues(puzzle, emptyCoordinates, index + 1);
+
+                SolutionCount(puzzle, newPossible, emptyCoordinates, index + 1, ref count, limit);
+                if (count >= limit)
+                    return;
             }
 
-            else
-            {
-                ++col;
-                if (col == Size)
-                {
-                    col = 0;
-                    ++row;
-                    SolutionCount(puzzle, possible, ref row, ref col, ref count, limit);
-                    --row;
-                    col = Size - 1;
-                }
-
-                else
-                {
-                    SolutionCount(puzzle, possible, ref row, ref col, ref count, limit);
-                    --col;
-                }
-            }
-
-            if (count >= limit) return;
+            puzzle[emptyCoordinates[index].row][emptyCoordinates[index].col] = 0;
         }
 
-        public int[,] CreatePuzzle(int[,] board, int removeCellsCount)
+        public List<List<int>> CreatePuzzle(List<List<int>> board, int missingFields)
         {
-            int[,] puzzle = new int[Size, Size];
-            Array.Copy(board, puzzle, board.Length);
-            int count = 0;
-            int row = 0;
-            int col = 0;
+            // Generate random coordinates to remove numbers
+            var coordsToRemove = GenerateRandomCoordinates(missingFields);
 
-            do
+            List<List<int>> puzzle = new List<List<int>>();
+            foreach (var row in board)
             {
-                int[,] coordinates = GenerateRandomCoordinates(removeCellsCount);
-                for (int i = 0; i < removeCellsCount; ++i)
-                {
-                    puzzle[coordinates[i, 0], coordinates[i, 1]] = 0;
-                }
-                count = 0;
-                SolutionCount(puzzle, GetPossibleValues(puzzle), ref row, ref col, ref count);
-                Console.WriteLine("{0} \n", count);
-            } while (count != 1);
+                puzzle.Add(new List<int>(row));  // copy each inner list
+            }
+
+            // Remove numbers at chosen coordinates
+            foreach (var (row, col) in coordsToRemove)
+            {
+                puzzle[row][col] = 0; // 0 to represent an empty cell
+            }
+
             return puzzle;
         }
     }

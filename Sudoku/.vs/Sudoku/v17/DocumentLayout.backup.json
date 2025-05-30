@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\user\\Desktop\\Hayk projects\\SudokuGeneratorCSharp\\Sudoku\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{D9A8AC1F-728C-4C7D-8E59-0089DEAE4E75}|Sudoku\\Sudoku.csproj|c:\\users\\user\\desktop\\hayk projects\\sudokugeneratorcsharp\\sudoku\\sudoku\\boardgenerator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D9A8AC1F-728C-4C7D-8E59-0089DEAE4E75}|Sudoku\\Sudoku.csproj|solutionrelative:sudoku\\boardgenerator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{D9A8AC1F-728C-4C7D-8E59-0089DEAE4E75}|Sudoku\\Sudoku.csproj|C:\\Users\\user\\Desktop\\Hayk projects\\SudokuGeneratorCSharp\\Sudoku\\sudoku\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D9A8AC1F-728C-4C7D-8E59-0089DEAE4E75}|Sudoku\\Sudoku.csproj|solutionrelative:sudoku\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D9A8AC1F-728C-4C7D-8E59-0089DEAE4E75}|Sudoku\\Sudoku.csproj|c:\\users\\user\\desktop\\hayk projects\\sudokugeneratorcsharp\\sudoku\\sudoku\\boardgenerator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D9A8AC1F-728C-4C7D-8E59-0089DEAE4E75}|Sudoku\\Sudoku.csproj|solutionrelative:sudoku\\boardgenerator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{D9A8AC1F-728C-4C7D-8E59-0089DEAE4E75}|Sudoku\\Sudoku.csproj|C:\\Users\\user\\Desktop\\Hayk projects\\SudokuGeneratorCSharp\\Sudoku\\sudoku\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -47,12 +47,25 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "Form1.cs",
+              "DocumentMoniker": "C:\\Users\\user\\Desktop\\Hayk projects\\SudokuGeneratorCSharp\\Sudoku\\Sudoku\\Form1.cs",
+              "RelativeDocumentMoniker": "Sudoku\\Form1.cs",
+              "ToolTip": "C:\\Users\\user\\Desktop\\Hayk projects\\SudokuGeneratorCSharp\\Sudoku\\Sudoku\\Form1.cs*",
+              "RelativeToolTip": "Sudoku\\Form1.cs*",
+              "ViewState": "AgIAAGUBAAAAAAAAAAAAAHgBAABLAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-25T07:22:36.21Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "BoardGenerator.cs",
               "DocumentMoniker": "C:\\Users\\user\\Desktop\\Hayk projects\\SudokuGeneratorCSharp\\Sudoku\\Sudoku\\BoardGenerator.cs",
               "RelativeDocumentMoniker": "Sudoku\\BoardGenerator.cs",
               "ToolTip": "C:\\Users\\user\\Desktop\\Hayk projects\\SudokuGeneratorCSharp\\Sudoku\\Sudoku\\BoardGenerator.cs",
               "RelativeToolTip": "Sudoku\\BoardGenerator.cs",
-              "ViewState": "AgIAAGcBAAAAAAAAAAAAAGQBAAA9AAAAAAAAAA==",
+              "ViewState": "AgIAADoBAAAAAAAAAAAAAFEBAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-04-25T07:30:52.604Z",
               "EditorCaption": ""
@@ -68,19 +81,6 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-04-25T07:22:45.857Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Form1.cs",
-              "DocumentMoniker": "C:\\Users\\user\\Desktop\\Hayk projects\\SudokuGeneratorCSharp\\Sudoku\\Sudoku\\Form1.cs",
-              "RelativeDocumentMoniker": "Sudoku\\Form1.cs",
-              "ToolTip": "C:\\Users\\user\\Desktop\\Hayk projects\\SudokuGeneratorCSharp\\Sudoku\\Sudoku\\Form1.cs",
-              "RelativeToolTip": "Sudoku\\Form1.cs",
-              "ViewState": "AgIAADwAAAAAAAAAAAAAAE8AAABAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-25T07:22:36.21Z",
               "EditorCaption": ""
             }
           ]

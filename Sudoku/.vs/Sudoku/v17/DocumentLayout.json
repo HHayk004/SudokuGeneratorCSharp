@@ -26,7 +26,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
@@ -46,13 +46,26 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Form1.cs",
+              "DocumentMoniker": "C:\\Users\\user\\Desktop\\Hayk projects\\SudokuGeneratorCSharp\\Sudoku\\Sudoku\\Form1.cs",
+              "RelativeDocumentMoniker": "Sudoku\\Form1.cs",
+              "ToolTip": "C:\\Users\\user\\Desktop\\Hayk projects\\SudokuGeneratorCSharp\\Sudoku\\Sudoku\\Form1.cs",
+              "RelativeToolTip": "Sudoku\\Form1.cs",
+              "ViewState": "AgIAAGUBAAAAAAAAAAAuwG8BAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-25T07:22:36.21Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
               "Title": "BoardGenerator.cs",
               "DocumentMoniker": "C:\\Users\\user\\Desktop\\Hayk projects\\SudokuGeneratorCSharp\\Sudoku\\Sudoku\\BoardGenerator.cs",
               "RelativeDocumentMoniker": "Sudoku\\BoardGenerator.cs",
               "ToolTip": "C:\\Users\\user\\Desktop\\Hayk projects\\SudokuGeneratorCSharp\\Sudoku\\Sudoku\\BoardGenerator.cs",
               "RelativeToolTip": "Sudoku\\BoardGenerator.cs",
-              "ViewState": "AgIAAD0BAAAAAAAAAAAqwEEBAAAYAAAAAAAAAA==",
+              "ViewState": "AgIAABYBAAAAAAAAAAAqwEcBAAAbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-04-25T07:30:52.604Z",
               "EditorCaption": ""
@@ -68,19 +81,6 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-04-25T07:22:45.857Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Form1.cs",
-              "DocumentMoniker": "C:\\Users\\user\\Desktop\\Hayk projects\\SudokuGeneratorCSharp\\Sudoku\\Sudoku\\Form1.cs",
-              "RelativeDocumentMoniker": "Sudoku\\Form1.cs",
-              "ToolTip": "C:\\Users\\user\\Desktop\\Hayk projects\\SudokuGeneratorCSharp\\Sudoku\\Sudoku\\Form1.cs",
-              "RelativeToolTip": "Sudoku\\Form1.cs",
-              "ViewState": "AgIAADwAAAAAAAAAAAAAAE8AAABAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-25T07:22:36.21Z",
               "EditorCaption": ""
             }
           ]
