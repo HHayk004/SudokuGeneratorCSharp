@@ -55,13 +55,11 @@ namespace Sudoku
                 board.Add(new List<int>(new int[n]));
             }
 
-            // Initialize first row
             for (int i = 0; i < n; ++i)
             {
                 board[0][i] = i + 1;
             }
 
-            // Initialize other rows in first blockSize rows
             for (int i = 1; i < blockSize; ++i)
             {
                 for (int j = 0; j < n; ++j)
@@ -70,7 +68,6 @@ namespace Sudoku
                 }
             }
 
-            // Initialize the rest of the board
             for (int i = 1; i < blockSize; ++i)
             {
                 for (int j = 0; j < blockSize; ++j)
@@ -239,58 +236,16 @@ namespace Sudoku
             }
         }
 
-        private static bool[] IsValid(List<List<int>> puzzle, int row, int col)
+        public void GenerateRandomCoordinates(int n, List<(int row, int col)> coordinatesList, List<(int row, int col)> firstCoords)
         {
-            bool[] result = new bool[9];
-            for (int d = 0; d < 9; d++)
-                result[d] = true;
-
-            for (int c = 0; c < 9; c++)
-                if (puzzle[row][c] != 0)
-                    result[puzzle[row][c] - 1] = false;
-
-            for (int r = 0; r < 9; r++)
-                if (puzzle[r][col] != 0)
-                    result[puzzle[r][col] - 1] = false;
-
-            int boxRow = (row / 3) * 3;
-            int boxCol = (col / 3) * 3;
-            for (int r = 0; r < 3; ++r)
-                for (int c = 0; c < 3; ++c)
-                    if (puzzle[boxRow + r][boxCol + c] != 0)
-                        result[puzzle[boxRow + r][boxCol + c] - 1] = false;
-
-            return result;
-        }
-
-        public static bool[,] GetPossibleValues(List<List<int>> puzzle, List<(int row, int col)> coordinates, int index = 0)
-        {
-            int n = coordinates.Count;
-            bool[,] possible = new bool[n, 9];
-
-            for (int i = index; i < n; ++i)
-            {
-                bool[] valid = IsValid(puzzle, coordinates[i].row, coordinates[i].col);
-                for (int d = 0; d < 9; ++d)
-                {
-                    possible[i, d] = valid[d];
-                }
-            }
-
-            return possible;
-        }
-
-        public List<(int row, int col)> GenerateRandomCoordinates(int n)
-        {
-            if (n > Size * Size)
-            {
-                throw new ArgumentException("n cannot be greater than the total number of positions in the grid.");
-            }
-
             HashSet<(int, int)> coordinatesSet = new HashSet<(int, int)>();
-            List<(int row, int col)> coordinatesList = new List<(int row, int col)>();
 
-            while (coordinatesList.Count < n)
+            foreach ((int i, int j) in firstCoords)
+            {
+                coordinatesSet.Add((i, j));
+            }
+
+            while (n != 0)
             {
                 int row = rand.Next(0, Size);
                 int col = rand.Next(0, Size);
@@ -299,56 +254,58 @@ namespace Sudoku
                 {
                     coordinatesSet.Add((row, col));
                     coordinatesList.Add((row, col));
+                    --n;
                 }
             }
-
-            return coordinatesList;
-        }
-
-        private void SolutionCount(List<List<int>> puzzle, bool[,] possible, List<(int row, int col)> emptyCoordinates, int index, ref int count, int limit = 2)
-        {
-            if (index == emptyCoordinates.Count)
-            {
-                count++;
-                return;
-            }
-
-            for (int d = 0; d < 9; ++d)
-            {
-                if (!possible[index, d])
-                    continue;
-
-                var (row, col) = emptyCoordinates[index];
-                puzzle[row][col] = d + 1;
-
-                bool[,] newPossible = GetPossibleValues(puzzle, emptyCoordinates, index + 1);
-
-                SolutionCount(puzzle, newPossible, emptyCoordinates, index + 1, ref count, limit);
-                if (count >= limit)
-                    return;
-            }
-
-            puzzle[emptyCoordinates[index].row][emptyCoordinates[index].col] = 0;
         }
 
         public List<List<int>> CreatePuzzle(List<List<int>> board, int missingFields)
         {
-            // Generate random coordinates to remove numbers
-            var coordsToRemove = GenerateRandomCoordinates(missingFields);
+            List<List<int>> puzzle = null;
+            List<(int, int)> coordsToRemove = null;
+            List<(int, int)> firstCoords = new List<(int, int)>();
+            Solver solver = new Solver();
+            int count;
 
-            List<List<int>> puzzle = new List<List<int>>();
-            foreach (var row in board)
+            for (int i = 0; i < 1; ++i)
             {
-                puzzle.Add(new List<int>(row));  // copy each inner list
-            }
+                do
+                {
+                    puzzle = new List<List<int>>();
 
-            // Remove numbers at chosen coordinates
-            foreach (var (row, col) in coordsToRemove)
-            {
-                puzzle[row][col] = 0; // 0 to represent an empty cell
-            }
+                    foreach (var row in board)
+                    {
+                        puzzle.Add(new List<int>(row));
+                    }
 
+                    coordsToRemove = new List<(int, int)>();
+                    GenerateRandomCoordinates(missingFields, coordsToRemove, firstCoords);
+
+                    if (i == 1)
+                    {
+                        foreach ((int row, int col) in firstCoords)
+                        {
+                            puzzle[row][col] = 0;
+                        }
+                    }
+
+                    foreach (var (row, col) in coordsToRemove)
+                    {
+                        puzzle[row][col] = 0;
+                    }
+
+                } while (solver.CountSolutions(puzzle, 2) != 1);
+
+                if (i == 0)
+                {
+                    foreach ((int row, int col) in coordsToRemove)
+                    {
+                        firstCoords.Add((row, col));
+                    }
+                }
+            }
             return puzzle;
         }
+
     }
 }

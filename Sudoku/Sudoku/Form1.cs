@@ -162,22 +162,21 @@ namespace Sudoku
 
             mainLayout.Controls.Add(buttonLayout, 0, 2);
 
-            // Create digit selector layout (3x3 grid for digits 1-9)
+            
             digitSelectorLayout = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
-                ColumnCount = 3,  // 3 columns for digits 1-9
-                RowCount = 3,     // 3 rows for the buttons to fit nicely
+                ColumnCount = 3,
+                RowCount = 3,
             };
 
-            // Ensure equal size distribution
+
             for (int i = 0; i < 3; i++)
             {
-                digitSelectorLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33f)); // Even distribution across columns
-                digitSelectorLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33f)); // Even distribution across rows
+                digitSelectorLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33f));
+                digitSelectorLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33f));
             }
 
-            // Create digit buttons (1 to 9)
             for (int i = 1; i <= 9; i++)
             {
                 Button digitBtn = new Button
@@ -186,10 +185,10 @@ namespace Sudoku
                     Dock = DockStyle.Fill,
                     Tag = i,
                     BackColor = Color.White,
-                    Font = new Font("Arial", 16, FontStyle.Bold) // Adjust font size for better fit
+                    Font = new Font("Arial", 16, FontStyle.Bold)
                 };
 
-                // Attach click event handler to set selected digit
+
                 digitBtn.Click += (s, e) =>
                 {
                     selectedDigit = (int)((Button)s).Tag;
@@ -197,12 +196,10 @@ namespace Sudoku
                     TryPlaceDigit();
                 };
 
-                // Place buttons in 3x3 grid (row-major order)
-                digitSelectorLayout.Controls.Add(digitBtn, (i - 1) % 3, (i - 1) / 3); // Add buttons to grid
+                digitSelectorLayout.Controls.Add(digitBtn, (i - 1) % 3, (i - 1) / 3);
             }
 
-            // Add the digit selector layout to the main layout
-            mainLayout.Controls.Add(digitSelectorLayout, 0, 3);  // Position this in the fourth row of mainLayout
+            mainLayout.Controls.Add(digitSelectorLayout, 0, 3);
         }
 
         private void HighlightSelectedDigit()
