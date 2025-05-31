@@ -62,9 +62,6 @@ namespace Sudoku
 
         private void Backtrack(List<List<int>> board)
         {
-            if (solutionCount >= limit)
-                return;
-
             if (emptyCellsCount == 0)
             {
                 solutionCount++;
@@ -103,6 +100,8 @@ namespace Sudoku
                 emptyCellsArray[bestIndex] = emptyCellsArray[--emptyCellsCount];
 
                 Backtrack(board);
+                if (solutionCount >= limit)
+                    return;
 
                 board[rBest][cBest] = 0;
                 rowUsed[rBest] &= ~mask;
@@ -136,6 +135,4 @@ namespace Sudoku
             return count;
         }
     }
-
-
 }

@@ -236,14 +236,9 @@ namespace Sudoku
             }
         }
 
-        public void GenerateRandomCoordinates(int n, List<(int row, int col)> coordinatesList, List<(int row, int col)> firstCoords)
+        public void GenerateRandomCoordinates(int n, List<(int row, int col)> coordinatesList)
         {
             HashSet<(int, int)> coordinatesSet = new HashSet<(int, int)>();
-
-            foreach ((int i, int j) in firstCoords)
-            {
-                coordinatesSet.Add((i, j));
-            }
 
             while (n != 0)
             {
@@ -263,9 +258,7 @@ namespace Sudoku
         {
             List<List<int>> puzzle = null;
             List<(int, int)> coordsToRemove = null;
-            List<(int, int)> firstCoords = new List<(int, int)>();
             Solver solver = new Solver();
-            int count;
 
             for (int i = 0; i < 1; ++i)
             {
@@ -279,15 +272,7 @@ namespace Sudoku
                     }
 
                     coordsToRemove = new List<(int, int)>();
-                    GenerateRandomCoordinates(missingFields, coordsToRemove, firstCoords);
-
-                    if (i == 1)
-                    {
-                        foreach ((int row, int col) in firstCoords)
-                        {
-                            puzzle[row][col] = 0;
-                        }
-                    }
+                    GenerateRandomCoordinates(missingFields, coordsToRemove);
 
                     foreach (var (row, col) in coordsToRemove)
                     {
@@ -295,14 +280,6 @@ namespace Sudoku
                     }
 
                 } while (solver.CountSolutions(puzzle, 2) != 1);
-
-                if (i == 0)
-                {
-                    foreach ((int row, int col) in coordsToRemove)
-                    {
-                        firstCoords.Add((row, col));
-                    }
-                }
             }
             return puzzle;
         }
